@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>সোনার গাঁ</title>
+<meta name="description" content="গ্রাম গড়ার সহজ বোর্ড গেম। বন্ধুর সাথে লিংক পাঠিয়ে পালা করে খেলো।">
+<meta property="og:title" content="সোনার গাঁ"><meta property="og:description" content="গ্রাম গড়ো, বন্ধুকে হারাও!"><meta property="og:image" content="cover.png"><meta name="theme-color" content="#0b2a38">
+<link rel="icon" href="icon.png"><link rel="apple-touch-icon" href="icon.png">
+
+<style>
+:root{--bg:#0b2a38;--bg2:#071a24;--ink:#f4f9fc;--gold:#ffc94d;--panel:#133e52;--panel2:#1a5068;--line:#2a6a86;--good:#35d07f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--bg2);color:var(--ink);overflow:hidden;touch-action:manipulation;font-family:"Noto Sans Bengali","Kalpurush","Bangla Sangam MN","Nirmala UI",system-ui,sans-serif}
+#app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto;padding:max(6px,env(safe-area-inset-top)) 10px max(8px,env(safe-area-inset-bottom));background:radial-gradient(120% 70% at 50% 0,#14516b 0,var(--bg) 45%,var(--bg2))}
+#top{display:flex;gap:6px;align-items:stretch}
+#scores{display:flex;gap:6px;flex:1;min-width:0}
+.pl{flex:1;min-width:0;background:linear-gradient(var(--panel2),var(--panel));border:2px solid transparent;border-radius:14px;padding:5px 8px 4px;box-shadow:0 3px 0 #0005}
+.pl.on{border-color:var(--gold);box-shadow:0 0 14px #ffc94d70,0 3px 0 #0005}
+.nm{display:flex;align-items:center;gap:5px;font-size:13px}
+.nm i{width:12px;height:12px;border-radius:50%;background:var(--c);border:2px solid #0008;flex:none}
+.nm b{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nm span{color:var(--gold);font-weight:800;font-size:12px;white-space:nowrap}
+.bar{height:6px;border-radius:4px;background:#0006;margin:4px 0 2px;overflow:hidden}
+.bar u{display:block;height:100%;background:linear-gradient(90deg,var(--c),var(--gold));border-radius:4px;transition:width .5s}
+.pl small{font-size:11px;opacity:.85;white-space:nowrap}
+.ib{width:40px;border-radius:14px;border:0;background:linear-gradient(var(--panel2),var(--panel));color:var(--ink);font-size:18px;box-shadow:0 3px 0 #0005}
+#coach{margin:7px 0 2px;background:#ffc94d1f;border:1.5px solid #ffc94d66;border-radius:12px;padding:6px 10px;font-size:14.5px;line-height:1.35;text-align:center;font-weight:600;min-height:44px;display:flex;align-items:center;justify-content:center}
+#bw{flex:1;min-height:0;position:relative}
+#board{width:100%;height:100%;display:block}
+#bd{filter:drop-shadow(0 5px 3px #0008)}
+#bw{background:radial-gradient(90% 80% at 50% 45%,#12506b66,transparent 70%)}
+#dice{position:absolute;left:0;top:0;background:#000c;border:2px solid var(--gold);border-radius:12px;padding:3px 12px;font-weight:800;font-size:19px;color:var(--gold)}
+#toast{position:absolute;left:6px;right:6px;bottom:6px;background:#000d;border:1.5px solid var(--gold);border-radius:12px;padding:8px 10px;text-align:center;font-size:14px;line-height:1.35;animation:up .25s;z-index:3}
+#mn{position:absolute;right:0;top:0;background:#000a;border:1.5px solid #ffffff30;border-radius:10px;padding:3px 9px;font-size:12px;color:#cfe8f2;z-index:2}
+.maps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mp{border:2px solid var(--line);background:#0b2a38;border-radius:14px;padding:6px 2px;color:var(--ink);font:inherit;display:flex;flex-direction:column;align-items:center;gap:3px}.mp b{font-size:11.5px}.mp.sel{border-color:var(--gold);background:var(--panel2);box-shadow:0 0 12px #ffc94d40}.rnd{font-size:30px;line-height:50px}
+@keyframes up{from{opacity:0;transform:translateY(8px)}}
+#hand{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 0}
+.rc{background:linear-gradient(var(--panel2),var(--panel));border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px;padding:5px 0;box-shadow:0 3px 0 #0005}
+.rc em{font-style:normal;display:flex}.ic{vertical-align:-3px;flex:none}.rc b{font-size:22px}.rc small{font-size:12px;opacity:.8}
+#acts{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding-top:2px}
+.ab{border:0;border-radius:14px;background:linear-gradient(var(--panel2),var(--panel));color:var(--ink);font:inherit;font-size:14px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:54px;box-shadow:0 4px 0 #0006;transition:transform .08s}
+.ab:active{transform:translateY(3px);box-shadow:0 1px 0 #0006}
+.ab small{font-size:11px;font-weight:400;opacity:.9}
+.ab.dim{opacity:.4}
+.ab.go{background:linear-gradient(#45e08f,#1fa863);animation:glow 1s infinite alternate}
+.ab.sel{outline:3px solid var(--gold)}
+@keyframes glow{to{box-shadow:0 4px 0 #0006,0 0 16px #5affa5aa}}
+#prim{grid-column:1/-1;background:linear-gradient(#ffd97a,#f0a928);color:#3a2300;font-size:19px;min-height:52px}
+#prim.go{background:linear-gradient(#45e08f,#1fa863);color:#032}
+#prim.pulse{animation:glow 1s infinite alternate,beat 1s infinite alternate}
+@keyframes beat{to{transform:scale(1.03)}}
+#modal{position:fixed;inset:0;background:#000b;display:flex;align-items:center;justify-content:center;padding:16px;z-index:9}
+#card{background:linear-gradient(#17536b,#0e3445);border:2px solid var(--gold);border-radius:22px;padding:20px;max-width:400px;width:100%;max-height:94%;overflow:auto;text-align:center;box-shadow:0 10px 40px #000a}
+h1{font-size:46px;color:var(--gold);margin:2px 0;line-height:1.2}
+h2{margin:0 0 8px;color:var(--gold);font-size:24px}
+p{line-height:1.55;font-size:16px;margin:8px 0}
+.sub{opacity:.95}.lb{font-size:13.5px;opacity:.85}
+.big{display:block;width:100%;border:0;border-radius:16px;background:linear-gradient(#ffd97a,#f0a928);color:#3a2300;font:inherit;font-weight:800;font-size:18px;padding:13px;margin:10px 0 4px;box-shadow:0 4px 0 #7a4e00}
+.big.alt{background:linear-gradient(#5fd0f0,#2a8fb5);color:#04202c;box-shadow:0 4px 0 #0b4a63}
+.ghost{display:block;width:100%;border:2px solid var(--line);background:transparent;color:var(--ink);font:inherit;border-radius:14px;padding:10px;margin-top:8px;font-size:15px}
+.row{display:flex;gap:8px;margin:8px 0}
+.chip{flex:1;border:2px solid var(--line);background:#0b2a38;color:var(--ink);border-radius:14px;padding:8px 0;font:inherit;font-size:26px}
+.chip small{display:block;font-size:12px}
+.chip.sel{border-color:var(--gold);background:var(--panel2)}.chip.off{opacity:.3}
+.dots{display:flex;gap:6px;justify-content:center;margin:10px 0 0}.dots i{width:8px;height:8px;border-radius:50%;background:#fff4}.dots i.on{background:var(--gold)}
+.hl{fill:#ffd45a;stroke:#fff;stroke-width:2;animation:pl .8s infinite alternate}
+.el{fill:none;stroke:#ffd45a;stroke-width:8;stroke-linecap:round;animation:pl .8s infinite alternate}
+.hot{fill:#fff3;stroke:#fff;stroke-width:3.5;stroke-linejoin:round;animation:pl .8s infinite alternate;pointer-events:none}
+@keyframes pl{to{opacity:.4}}
+.fl{animation:fl 1.4s ease-out forwards;pointer-events:none}.fl text{font-size:16px;font-weight:800;stroke:#000;stroke-width:3px;paint-order:stroke}
+@keyframes fl{to{transform:translateY(-30px);opacity:0}}
+#conf{position:fixed;inset:0;pointer-events:none;z-index:10;overflow:hidden}
+#conf span{position:absolute;top:-30px;animation:fall 2.6s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+@media (max-height:620px){#coach{min-height:38px;font-size:13px}.ab{min-height:46px}#prim{min-height:44px}}
+input{width:100%;margin-top:8px;padding:10px;border-radius:12px;border:2px solid var(--line);background:#0b2a38;color:var(--ink);font:inherit;font-size:14px;text-align:center;-webkit-user-select:text;user-select:text}
+#acts{display:flex!important;flex-wrap:wrap;align-content:flex-end;min-height:116px}
+.ab{flex:1 1 0;min-width:0}#prim{flex:1 1 100%}
+#nobuy{flex:1 1 100%;text-align:center;font-size:13.5px;opacity:.9;padding:6px;border:1.5px dashed var(--line);border-radius:12px}
+#fly{position:fixed;inset:0;pointer-events:none;z-index:8}
+.fly{position:absolute;display:flex;align-items:center;gap:2px;transform:translate(-50%,-50%);filter:drop-shadow(0 2px 3px #000b)}.fly b{font-size:15px;color:#fff;text-shadow:0 1px 3px #000}
+.rc{position:relative}.rc.bump{animation:bump .55s}@keyframes bump{40%{transform:scale(1.16);background:#2f7a52}}
+.plus{position:absolute;top:-8px;right:10px;font-style:normal;font-weight:800;font-size:16px;color:#7dffb0;text-shadow:0 1px 3px #000;animation:plus .9s forwards}@keyframes plus{to{transform:translateY(-16px);opacity:0}}
+.stage{background:radial-gradient(#0f3a4d,#08202c);border:2px solid var(--line);border-radius:16px;padding:6px}
+.cap{font-size:17px;font-weight:700;min-height:50px;margin:8px 0 2px;line-height:1.4}
+.tt{font-size:11px;font-weight:800;fill:#1c2b36;text-anchor:middle;dominant-baseline:central}
+.tb{font-size:22px;font-weight:800;fill:#fff;text-anchor:middle;dominant-baseline:central}
+.ts{font-size:22px;font-weight:800;fill:#ffc94d;text-anchor:middle}
+.td{text-anchor:middle;dominant-baseline:central;font-size:30px;font-weight:800;fill:#1c2b36}
+.t-die{transform-box:fill-box;transform-origin:center;animation:tdie 6s infinite}
+@keyframes tdie{0%{transform:rotate(0)}5%{transform:rotate(30deg)}10%{transform:rotate(-30deg)}15%{transform:rotate(30deg)}20%{transform:rotate(-30deg)}25%,100%{transform:rotate(0)}}
+.t-die .d1,.t-die .d2,.t-die .d3,.t-die .d4{opacity:0}
+.d1{animation:td1 6s infinite}.d2{animation:td2 6s infinite}.d3{animation:td3 6s infinite}.d4{animation:td4 6s infinite}
+@keyframes td1{0%,5%{opacity:1}5.1%,100%{opacity:0}}@keyframes td2{0%,5%{opacity:0}5.1%,10%{opacity:1}10.1%,100%{opacity:0}}
+@keyframes td3{0%,10%{opacity:0}10.1%,15%{opacity:1}15.1%,100%{opacity:0}}@keyframes td4{0%,15%{opacity:0}20%,95%{opacity:1}100%{opacity:0}}
+.t-glow{opacity:0;animation:tglow 6s infinite}@keyframes tglow{0%,28%{opacity:0}35%{opacity:1}50%{opacity:.3}65%,100%{opacity:1}}
+.t-glow2{animation:tglow2 6s infinite}@keyframes tglow2{0%,30%{opacity:1}45%{opacity:.3}60%,100%{opacity:1}}
+.t-fly{opacity:0;animation:tfly 6s infinite}@keyframes tfly{0%,20%{opacity:0;transform:translate(0,0) scale(1.2)}25%{opacity:1}70%{opacity:1;transform:translate(var(--dx),var(--dy)) scale(1)}76%,100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1)}}
+.t-flyb{opacity:0;animation:tflyb 6s infinite}@keyframes tflyb{0%,6%{opacity:0;transform:translate(0,0) scale(1)}10%{opacity:1}50%{opacity:1;transform:translate(var(--dx),var(--dy)) scale(.8)}54%,100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.8)}}
+.t-a1{animation:tha1 6s infinite}.t-b1{opacity:0;animation:thb1 6s infinite}.t-a2{animation:tha2 6s infinite}.t-b2{opacity:0;animation:thb2 6s infinite}
+@keyframes tha1{0%,55%{opacity:1}55.1%,100%{opacity:0}}@keyframes thb1{0%,55%{opacity:0}55.1%,100%{opacity:1}}
+@keyframes tha2{0%,76%{opacity:1}76.1%,100%{opacity:0}}@keyframes thb2{0%,76%{opacity:0}76.1%,100%{opacity:1}}
+.t-plus{opacity:0;fill:#7dffb0;font-size:18px;font-weight:800;text-anchor:middle;animation:tplus 6s infinite}@keyframes tplus{0%,76%{opacity:0;transform:translateY(0)}80%{opacity:1}94%,100%{opacity:0;transform:translateY(-16px)}}
+.t-pop{opacity:0;animation:tpop 6s infinite}@keyframes tpop{0%,55%{opacity:0;transform:scale(0)}62%{opacity:1;transform:scale(1.5)}70%,92%{opacity:1;transform:scale(1)}100%{opacity:0}}
+.t-hutout{animation:thout 6s infinite}@keyframes thout{0%,55%{opacity:1}57%,100%{opacity:0}}
+.t-bar{transform-box:fill-box;transform-origin:left;animation:tbar 6s infinite}@keyframes tbar{0%{transform:scaleX(.05)}65%,100%{transform:scaleX(1)}}
+.tc1,.tc2,.tc3,.tc4,.tc5{opacity:0}.tc1{animation:tc1 6s infinite}.tc2{animation:tc2 6s infinite}.tc3{animation:tc3 6s infinite}.tc4{animation:tc4 6s infinite}.tc5{animation:tc5 6s infinite}
+@keyframes tc1{0%,13%{opacity:1}13.1%,100%{opacity:0}}@keyframes tc2{0%,13%{opacity:0}13.1%,26%{opacity:1}26.1%,100%{opacity:0}}@keyframes tc3{0%,26%{opacity:0}26.1%,39%{opacity:1}39.1%,100%{opacity:0}}@keyframes tc4{0%,39%{opacity:0}39.1%,52%{opacity:1}52.1%,100%{opacity:0}}@keyframes tc5{0%,52%{opacity:0}52.1%,95%{opacity:1}100%{opacity:0}}
+.t-trophy{opacity:0;font-size:48px;text-anchor:middle;transform-box:fill-box;transform-origin:center;animation:ttro 6s infinite}@keyframes ttro{0%,60%{opacity:0;transform:scale(0)}68%{opacity:1;transform:scale(1.35)}76%,94%{opacity:1;transform:scale(1)}100%{opacity:0}}
+.t-cf{opacity:0;font-size:22px;animation:tcf 6s infinite}@keyframes tcf{0%,62%{opacity:0;transform:translateY(0)}66%{opacity:1}100%{opacity:0;transform:translateY(190px)}}
+.best{fill:none;stroke:#7dffb0;stroke-width:3.5;animation:pl .7s infinite alternate}.bt{font-size:10px;font-weight:800;fill:#7dffb0;stroke:#000;stroke-width:2.5px;paint-order:stroke;text-anchor:middle;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="app">
+ <div id="top"><div id="scores"></div><button class="ib" id="bm" aria-label="মেনু">☰</button></div>
+ <div id="coach"></div>
+ <div id="bw">
+  <svg id="board" viewBox="-190 -172 380 344">
+   <defs id="dfs">
+    <radialGradient id="g0" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#ffe58a"/><stop offset="1" stop-color="#d9981a"/></radialGradient>
+    <radialGradient id="g1" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#8be3f7"/><stop offset="1" stop-color="#2386ac"/></radialGradient>
+    <radialGradient id="g2" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#b3f08c"/><stop offset="1" stop-color="#37923a"/></radialGradient>
+    <radialGradient id="gp" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#a9d0df"/><stop offset="1" stop-color="#4d8399"/></radialGradient>
+    <radialGradient id="tk" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fffdf2"/><stop offset="1" stop-color="#ecd9a6"/></radialGradient>
+    <symbol id="r0" viewBox="0 0 32 32"><path d="M16 30V10" stroke="#6b4a08" stroke-width="2.2" fill="none" stroke-linecap="round"/><g fill="#fff6c4" stroke="#6b4a08" stroke-width="1.2"><ellipse cx="16" cy="5" rx="2.6" ry="4"/><ellipse cx="11" cy="10" rx="2.4" ry="3.8" transform="rotate(-35 11 10)"/><ellipse cx="21" cy="10" rx="2.4" ry="3.8" transform="rotate(35 21 10)"/><ellipse cx="10.5" cy="17" rx="2.4" ry="3.8" transform="rotate(-35 10.5 17)"/><ellipse cx="21.5" cy="17" rx="2.4" ry="3.8" transform="rotate(35 21.5 17)"/></g></symbol>
+    <symbol id="r1" viewBox="0 0 32 32"><path d="M3 16c5-8 14-9 20-3l6-5v16l-6-5c-6 6-15 5-20-3z" fill="#fff" stroke="#0b4a63" stroke-width="1.7" stroke-linejoin="round"/><circle cx="9" cy="14" r="1.7" fill="#0b4a63"/><path d="M15 11c2 3 2 7 0 10" stroke="#8fcfe6" fill="none" stroke-width="1.7" stroke-linecap="round"/></symbol>
+    <symbol id="r2" viewBox="0 0 32 32"><g fill="#e4fbd2" stroke="#1e6b2a" stroke-width="1.6" stroke-linejoin="round"><rect x="13" y="2" width="6" height="8" rx="2"/><rect x="13" y="11" width="6" height="9" rx="2"/><rect x="13" y="21" width="6" height="9" rx="2"/></g><path d="M19 14c5-1 8-4 9-8-5 0-8 3-9 8zM13 24c-5-1-8-4-9-8 5 0 8 3 9 8z" fill="#3fae4a" stroke="#1e6b2a" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+    <symbol id="rp" viewBox="0 0 32 32"><g fill="#ffd6e4" stroke="#a24a6b" stroke-width="1.3"><ellipse cx="16" cy="12" rx="3.5" ry="8"/><ellipse cx="9" cy="15" rx="3.3" ry="7.5" transform="rotate(-40 9 15)"/><ellipse cx="23" cy="15" rx="3.3" ry="7.5" transform="rotate(40 23 15)"/></g><ellipse cx="16" cy="25" rx="11" ry="3.2" fill="#5fb06a" stroke="#2c6b38" stroke-width="1.3"/></symbol>
+   </defs>
+   <g id="bd"></g><g id="fx"></g>
+  </svg>
+  <div id="mn"></div><div id="dice" hidden></div><div id="toast" hidden></div>
+ </div>
+ <div id="hand"></div>
+ <div id="acts">
+  <button class="ab" id="bpath">পথ<small></small></button>
+  <button class="ab" id="bhut">কুঁড়ে<small></small></button>
+  <button class="ab" id="bcity">দালান<small></small></button>
+  <button class="ab" id="btrade">বাজার<small>৩ ➜ ১</small></button>
+  <div id="nobuy" hidden>এখন কিছু কেনার মতো সম্পদ নেই। পালা শেষ করো</div>
+  <button class="ab" id="prim"></button>
+ </div>
+</div>
+<div id="fly"></div>
+<div id="modal" hidden><div id="card"></div></div>
+<div id="conf"></div>
+<script>
+var NOFR=false;
+/*ENGINE*/
+const SIDES=4,WIN=8,SETUP=[0,1,1,0],EASY_SKIP=.8;
+const COST={p:[0,1,1],h:[1,1,1],c:[2,2,0]};
+const bn=n=>String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]);
+const enc=(t,i)=>t+i.toString(36).padStart(2,'0');
+function rng(a){a>>>=0;return()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const dice=(seed,tn)=>Math.floor(rng(Math.imul(seed,2654435761)+Math.imul(tn+1,40503))()*SIDES)+1;
+const _ring=(f)=>{const a=[];for(let r=-2;r<=2;r++)for(let q=-2;q<=2;q++)if(Math.abs(q+r)<=2)a.push([q,r,f(q,r)]);return a};
+const _long=()=>{const a=[];for(let r=0;r<=3;r++)for(let q=-(r>>1);q<=-(r>>1)+4;q++)a.push([q,r,(q==2&&r==1)||(q==1&&r==2)]);return a};
+const _tri=()=>{const a=[];for(let r=0;r<=4;r++)for(let q=0;q<=4-r;q++)a.push([q,r,q==1&&r==1]);return a};
+const MAPS=[{n:'সোনালি মাঠ',cells:_ring((q,r)=>!q&&!r)},{n:'নদীর পাড়',cells:_ring((q,r)=>q==0&&Math.abs(r)<=1)},{n:'হাওরের বুক',cells:_long()},{n:'ত্রিমোহনা',cells:_tri()}];
+function mk(seed,names,ids){
+ const map=MAPS[seed%MAPS.length],rn=rng(seed),sh=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(rn()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+ const L=map.cells.filter(c=>!c[2]).length,res=sh(Array.from({length:L},(_,i)=>i%3)),nums=sh(Array.from({length:L},(_,i)=>i%SIDES+1));
+ const S=40,SQ=Math.sqrt(3),h=[],V=[],E=[],vm={},em={};let n=0;
+ map.cells.forEach(([q,r,pd])=>{h.push({q,r,x:S*SQ*(q+r/2),y:S*1.5*r,res:pd?-1:res[n],num:pd?0:nums[n],v:[]});if(!pd)n++});
+ h.forEach((H,hi)=>{
+  for(let k=0;k<6;k++){const a=Math.PI/180*(60*k-30),x=H.x+S*Math.cos(a),y=H.y+S*Math.sin(a),key=Math.round(x)+','+Math.round(y);
+   if(vm[key]==null){vm[key]=V.length;V.push({x,y,hx:[],ed:[],nb:[],o:-1,t:0})}H.v.push(vm[key]);V[vm[key]].hx.push(hi)}
+  for(let k=0;k<6;k++){const a=H.v[k],b=H.v[(k+1)%6],key=Math.min(a,b)+'|'+Math.max(a,b);
+   if(em[key]==null){em[key]=E.length;E.push({a,b,o:-1});V[a].ed.push(E.length-1);V[b].ed.push(E.length-1);V[a].nb.push(b);V[b].nb.push(a)}}});
+ const xs=V.map(v=>v.x),ys=V.map(v=>v.y),pad=26,x0=Math.min(...xs)-pad,y0=Math.min(...ys)-pad-4;
+ return{seed,map:seed%MAPS.length,vb:`${x0.toFixed(0)} ${y0.toFixed(0)} ${(Math.max(...xs)+pad-x0).toFixed(0)} ${(Math.max(...ys)+pad+4-y0).toFixed(0)}`,h,V,E,res:[[0,0,0],[0,0,0]],phase:'setup',step:0,sub:0,turn:0,tn:0,rolled:false,dice:0,hits:[],log:'',hist:[],over:false,win:-1,lastHut:-1,names,ids}}
+const cur=G=>G.phase=='setup'?SETUP[G.step]:G.turn;
+const afford=(G,p,c)=>c.every((n,i)=>G.res[p][i]>=n);
+const spend=(G,p,c)=>c.forEach((n,i)=>G.res[p][i]-=n);
+const pts=(G,p)=>G.V.reduce((s,v)=>s+(v.o==p?v.t:0),0);
+const canHut=(G,k,p,setup)=>{const v=G.V[k];return v.o<0&&v.nb.every(n=>G.V[n].o<0)&&(setup||v.ed.some(e=>G.E[e].o==p))};
+const canPath=(G,k,p)=>{const e=G.E[k];return e.o<0&&[e.a,e.b].some(x=>G.V[x].o==p||(G.V[x].o<0&&G.V[x].ed.some(y=>G.E[y].o==p)))};
+const hutSpots=(G,p,setup)=>G.V.map((_,k)=>k).filter(k=>canHut(G,k,p,setup));
+const edgesFor=(G,p)=>G.E.map((_,k)=>k).filter(k=>canPath(G,k,p));
+const myHuts=(G,p)=>G.V.map((_,k)=>k).filter(k=>G.V[k].o==p&&G.V[k].t==1);
+function doRoll(G){const d=dice(G.seed,G.tn);G.dice=d;G.rolled=true;G.hits=[];
+ G.h.forEach(H=>{if(H.num!=d)return;H.v.forEach(k=>{const v=G.V[k];if(v.o>=0){G.res[v.o][H.res]+=v.t;G.hits.push({k,r:H.res,n:v.t,p:v.o})}})})}
+function act(G,a){
+ if(G.over||a.length!=3)return false;
+ const t=a[0],p=cur(G),V=G.V,E=G.E,i=parseInt(a.slice(1,3),36);
+ if(G.phase=='setup'){
+  if(t=='h'&&G.sub==0&&V[i]&&canHut(G,i,p,1)){V[i].o=p;V[i].t=1;G.lastHut=i;G.sub=1;
+   if(G.step>=2)V[i].hx.forEach(x=>{const r=G.h[x].res;if(r>=0)G.res[p][r]++})}
+  else if(t=='p'&&G.sub==1&&E[i]&&E[i].o<0&&V[G.lastHut].ed.includes(i)){E[i].o=p;G.sub=0;if(++G.step==4){G.phase='main';G.turn=0;G.tn=0}}
+  else return false;
+ }else{
+  if(!G.rolled)doRoll(G);
+  if(t=='e'){G.turn^=1;G.tn++;G.rolled=false}
+  else if(t=='p'&&E[i]&&afford(G,p,COST.p)&&canPath(G,i,p)){spend(G,p,COST.p);E[i].o=p}
+  else if(t=='h'&&V[i]&&afford(G,p,COST.h)&&canHut(G,i,p,0)){spend(G,p,COST.h);V[i].o=p;V[i].t=1}
+  else if(t=='u'&&V[i]&&V[i].o==p&&V[i].t==1&&afford(G,p,COST.c)){spend(G,p,COST.c);V[i].t=2}
+  else if(t=='t'){const g=+a[1],r=+a[2];if(!(g>=0&&g<3&&r>=0&&r<3&&g!=r&&G.res[p][g]>=3))return false;G.res[p][g]-=3;G.res[p][r]++}
+  else return false;
+  if(pts(G,p)>=WIN){G.over=true;G.win=p}
+ }
+ G.log+=a;G.hist.push({p,t});return true}
+function replay(seed,log,names,ids){const G=mk(seed,names,ids);for(let i=0;i<log.length;i+=3)if(!act(G,log.substr(i,3)))return null;return G}
+/* ---- bot ---- */
+const vv=(G,k)=>{const set=new Set();let s=0;G.V[k].hx.forEach(x=>{const r=G.h[x].res;if(r>=0){s++;set.add(r)}});return s+set.size*1.2+Math.random()*.6};
+function botSetup(G,p,lv){
+ if(G.sub==0){const sp=hutSpots(G,p,1).sort((a,b)=>vv(G,b)-vv(G,a));return enc('h',sp[lv===0?Math.floor(Math.random()*Math.min(5,sp.length)):0])}
+ const l=G.lastHut,far=e=>vv(G,G.E[e].a==l?G.E[e].b:G.E[e].a);
+ return enc('p',G.V[l].ed.filter(e=>G.E[e].o<0).sort((a,b)=>far(b)-far(a))[0])}
+function botMove(G,p,lv){
+ const R=G.res[p],mine=myHuts(G,p),spots=hutSpots(G,p);
+ if(lv==0&&Math.random()<Math.min(.98,Math.max(.55,EASY_SKIP+.45*(pts(G,p)-pts(G,1-p)))))return null;
+ if(mine.length&&afford(G,p,COST.c))return enc('u',mine.sort((a,b)=>vv(G,b)-vv(G,a))[0]);
+ if(spots.length&&afford(G,p,COST.h))return enc('h',spots.sort((a,b)=>vv(G,b)-vv(G,a))[0]);
+ if(!spots.length&&afford(G,p,COST.p)){
+  const sc=e=>Math.max(...[G.E[e].a,G.E[e].b].map(x=>G.V[x].o<0&&G.V[x].nb.every(n=>G.V[n].o<0)?vv(G,x)+2:vv(G,x)*.2)),es=edgesFor(G,p).sort((a,b)=>sc(b)-sc(a));
+  if(es.length&&G.E.filter(e=>e.o==p).length<12)return enc('p',es[0])}
+ const tgt=spots.length?COST.h:mine.length?COST.c:COST.p,need=tgt.findIndex((n,i)=>R[i]<n);
+ if(lv>0&&need>=0){const gi=R.findIndex((n,i)=>i!=need&&n-tgt[i]>=3);if(gi>=0)return't'+gi+need}
+ return null}
+/*END*/
+
+const $=id=>document.getElementById(id);
+let SPEED=1;const sleep=ms=>new Promise(r=>setTimeout(r,ms*SPEED));
+const RS=[{n:'ধান',e:'🌾'},{n:'মাছ',e:'🐟'},{n:'বাঁশ',e:'🎋'}],PC=['#ff5a5f','#4db8ff'];
+const ico=(i,s=18)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 32 32"><use href="#r${i}"/></svg>`;
+const ems=(c,s=18)=>c.map((n,i)=>ico(i,s).repeat(n)).join('');
+const clean=x=>String(x==null?'':x).replace(/[^\p{L}\p{M}\p{N} _.-]/gu,'').trim().slice(0,12);
+const cid=x=>String(x==null?'':x).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,40);
+let mapSel=-1,pend=[0,0,0];
+function miniMap(i){const S=9,c=MAPS[i].cells,col=['#f0c648','#62c6e0','#7fcf63'];let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,n=0;
+ const h=c.map(([q,r,pd])=>{const x=S*Math.sqrt(3)*(q+r/2),y=S*1.5*r;x0=Math.min(x0,x-S);x1=Math.max(x1,x+S);y0=Math.min(y0,y-S);y1=Math.max(y1,y+S);
+  return `<polygon points="${[0,1,2,3,4,5].map(k=>{const a=Math.PI/180*(60*k-30);return(x+S*.88*Math.cos(a)).toFixed(1)+','+(y+S*.88*Math.sin(a)).toFixed(1)}).join(' ')}" fill="${pd?'#2a6f90':col[n++%3]}"/>`}).join('');
+ return `<svg viewBox="${x0} ${y0} ${x1-x0} ${y1-y0}" width="66" height="50">${h}</svg>`}
+const TITLES=[[0,'নতুন চাষি'],[1,'গেরস্থ'],[3,'মোড়ল'],[6,'মাতব্বর'],[10,'জমিদার'],[20,'নবাব']];
+let G,mode='',gmode='bot',level=1,me=0,busy=true,driving=false,snd=true,ac,fbOK=false,myId='',myName='',ctxId='',ctxType='SOLO',sentLen=-1,mbuild='';
+let D={g:0,w:0,s:0,b:0,seen:0,done:[],cur:null};
+/* ---------- storage / facebook ---------- */
+const store={
+ async load(){try{if(fbOK){const r=await FBInstant.player.getDataAsync(['d']);if(r.d)return r.d}}catch(e){}try{return JSON.parse(localStorage.getItem('sg2')||'{}')}catch(e){return{}}},
+ async save(){try{if(fbOK){await FBInstant.player.setDataAsync({d:D});return}}catch(e){}try{localStorage.setItem('sg2',JSON.stringify(D))}catch(e){}}};
+async function fbInit(){const F=window.FBInstant;if(!F)return null;
+ try{await F.initializeAsync();F.setLoadingProgress(100);await F.startGameAsync();fbOK=true;
+  myId=F.player.getID()||'';myName=clean((F.player.getName()||'').split(' ')[0]);
+  ctxId=F.context.getID()||'';ctxType=F.context.getType();return F.getEntryPointData()}catch(e){return null}}
+function beep(f=440,d=.08,t='sine'){if(!snd)return;try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.type=t;o.frequency.value=f;g.gain.value=.05;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}}
+function saveCur(){D.cur=G&&!G.over?{m:gmode,s:G.seed,l:G.log,n:G.names,i:G.ids,lv:level,c:ctxId}:null;store.save()}
+/* ---------- helpers ---------- */
+const isBot=p=>gmode=='bot'&&p==1;
+const isMine=p=>gmode=='local'||(gmode=='bot'?p==0:p==me);
+const titleOf=w=>{let t=TITLES[0];TITLES.forEach(x=>{if(w>=x[0])t=x});return t[1]};
+const nextT=w=>TITLES.find(x=>x[0]>w);
+function toast(t,ms=2200){const e=$('toast');e.innerHTML=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,ms)}
+function modal(h){$('card').innerHTML=h;delete $('card').dataset.tut;$('modal').hidden=false}
+const hide=()=>$('modal').hidden=true;
+function pop(k,t,c,r){const v=G.V[k],g=document.createElementNS('http://www.w3.org/2000/svg','g');g.setAttribute('class','fl');
+ g.innerHTML=`<text x="${v.x-7}" y="${v.y-9}" fill="${c}" text-anchor="middle">${t}</text><use href="#r${r}" x="${v.x+1}" y="${v.y-22}" width="17" height="17"/>`;$('fx').appendChild(g);setTimeout(()=>g.remove(),1500)}
+function confetti(){const c=$('conf');c.innerHTML='';for(let i=0;i<36;i++){const s=document.createElement('span');s.textContent=['🎉','⭐','🌾','🐟','✨'][i%5];s.style.cssText=`left:${Math.random()*100}%;animation-delay:${Math.random()*.8}s;font-size:${18+Math.random()*16}px`;c.appendChild(s)}setTimeout(()=>c.innerHTML='',3500)}
+/* ---------- drawing ---------- */
+const pts2=(H,f=1)=>H.v.map(k=>(H.x+(G.V[k].x-H.x)*f).toFixed(1)+','+(H.y+(G.V[k].y-H.y)*f).toFixed(1)).join(' ');
+const PD=['#a82a32','#1f6ea6'];
+function piece(v){const c=PC[v.o],d=PD[v.o],x=v.x,y=v.y,o='stroke="#08141d" stroke-width="2" stroke-linejoin="round"';
+ const sh=`<ellipse cx="${x}" cy="${y+9}" rx="${v.t==1?12:15}" ry="3.5" fill="#000" opacity=".35"/>`;
+ if(v.t==1)return `${sh}<rect x="${x-9}" y="${y-4}" width="18" height="12" fill="${c}" ${o}/><polygon points="${x-13},${y-3} ${x},${y-16} ${x+13},${y-3}" fill="${d}" ${o}/><rect x="${x-2.5}" y="${y+1}" width="5" height="7" fill="#08141d"/>`;
+ return `${sh}<rect x="${x-14}" y="${y-2}" width="28" height="10" fill="${c}" ${o}/><rect x="${x-6}" y="${y-13}" width="12" height="12" fill="${c}" ${o}/><polygon points="${x-9},${y-12} ${x},${y-23} ${x+9},${y-12}" fill="${d}" ${o}/><rect x="${x-2.5}" y="${y+1}" width="5" height="7" fill="#08141d"/><rect x="${x-11}" y="${y+1}" width="4" height="4" fill="#ffe58a"/><rect x="${x+7}" y="${y+1}" width="4" height="4" fill="#ffe58a"/>`}
+const vq=k=>{const set=new Set();let n=0;G.V[k].hx.forEach(x=>{const r=G.h[x].res;if(r>=0){n++;set.add(r)}});return n+set.size*1.2};
+function bestHint(h){const ix=a=>parseInt(a.slice(1),36);
+ if(h.v.length)return h.v.slice().sort((a,b)=>vq(ix(b))-vq(ix(a)))[0];
+ if(h.e.length){const sc=a=>{const e=G.E[ix(a)];return Math.max(...[e.a,e.b].map(x=>G.V[x].o<0&&G.V[x].nb.every(n=>G.V[n].o<0)?vq(x)+2:vq(x)*.2))};return h.e.slice().sort((a,b)=>sc(b)-sc(a))[0]}
+ return null}
+function autoMode(){if(!G||G.over||busy||G.phase!='setup'||!isMine(cur(G)))return mode;return G.sub?'setpath':'sethut'}
+function hl(){const m=autoMode(),p=cur(G),r={v:[],e:[]};if(!m)return r;
+ if(m=='sethut')r.v=hutSpots(G,p,1).map(k=>enc('h',k));else if(m=='setpath')r.e=G.V[G.lastHut].ed.filter(e=>G.E[e].o<0).map(k=>enc('p',k));
+ else if(m=='hut')r.v=hutSpots(G,p).map(k=>enc('h',k));else if(m=='city')r.v=myHuts(G,p).map(k=>enc('u',k));else if(m=='path')r.e=edgesFor(G,p).map(k=>enc('p',k));
+ return r}
+function boardSVG(withHl){
+ let s='';const h=withHl?hl():{v:[],e:[]},bh=withHl?bestHint(h):null;
+ G.h.forEach(H=>{s+=`<polygon points="${pts2(H,1.2)}" fill="#1d7596" fill-opacity=".5" stroke="#2c97b8" stroke-opacity=".5" stroke-width="2" stroke-linejoin="round"/>`});
+ G.h.forEach(H=>{
+  s+=`<polygon points="${pts2(H)}" fill="url(#g${H.res<0?'p':H.res})" stroke="#08141d" stroke-width="3" stroke-linejoin="round"/><polygon points="${pts2(H,.84)}" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="1.6" stroke-linejoin="round"/>`;
+  if(withHl&&G.rolled&&H.num==G.dice&&H.res>=0)s+=`<polygon class="hot" points="${pts2(H)}"/>`;
+  s+=`<use href="#r${H.res<0?'p':H.res}" x="${H.x-15}" y="${H.y-30}" width="30" height="30"/>`;
+  if(H.num)s+=`<circle cx="${H.x}" cy="${H.y+14}" r="11.5" fill="url(#tk)" stroke="#7a5a14" stroke-width="1.8"/><text x="${H.x}" y="${H.y+14.5}" font-size="15" font-weight="800" text-anchor="middle" dominant-baseline="central" fill="#1c2b36">${bn(H.num)}</text>`});
+ G.E.forEach(e=>{if(e.o>=0){const a=G.V[e.a],b=G.V[e.b],c=`x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke-linecap="round"`;
+  s+=`<line ${c} stroke="#08141d" stroke-width="10"/><line ${c} stroke="${PC[e.o]}" stroke-width="6"/>`}});
+ G.V.forEach(v=>{if(v.o>=0)s+=piece(v)});
+ h.v.forEach(a=>{const v=G.V[parseInt(a.slice(1),36)];if(a===bh)s+=`<circle class="best" cx="${v.x}" cy="${v.y}" r="15"/><text class="bt" x="${v.x}" y="${v.y-19}">সেরা</text>`;s+=`<circle class="hl" cx="${v.x}" cy="${v.y}" r="9"/><circle data-a="${a}" cx="${v.x}" cy="${v.y}" r="17" fill="transparent"/>`});
+ h.e.forEach(a=>{const e=G.E[parseInt(a.slice(1),36)],A=G.V[e.a],B=G.V[e.b],c=`x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"`;if(a===bh){s+=`<line class="el" ${c} style="stroke:#7dffb0;stroke-width:10"/><text class="bt" x="${(A.x+B.x)/2}" y="${(A.y+B.y)/2-8}">সেরা</text>`}s+=`<line class="el" ${c}/><line data-a="${a}" ${c} stroke="transparent" stroke-width="22" stroke-linecap="round"/>`});
+ return s}
+function coach(){
+ if(!G)return'';if(G.over)return G.win==me||gmode=='local'?'🎉 খেলা শেষ!':'খেলা শেষ';
+ const p=cur(G),nm=G.names[p];
+ if(!isMine(p))return gmode=='fb'?`⏳ ${nm}-র পালা। ও খেললে তুমি নতুন পালা পাবে`:`⏳ ${nm} ভাবছে…`;
+ if(G.phase=='setup'){const first=G.step<2;
+  return G.sub?'এবার কুঁড়ের গায়ে একটি পথ বসাও 👆':`${first?'প্রথম':'দ্বিতীয়'} কুঁড়ে বসাও। জ্বলজ্বলে বিন্দু ছুঁয়ে দাও 👆 সবুজ "সেরা" চিহ্নটি ভালো জায়গা${first?'':'। পাশের জমি থেকে শুরুর সম্পদ পাবে'}`}
+ if(!G.rolled)return'তোমার পালা! পাশা ফেলো 🎲 সংখ্যা মিললে জমি থেকে সম্পদ পাবে';
+ if(mode)return'সোনালি জায়গায় ছুঁয়ে দাও। সবুজ "সেরা" চিহ্ন সবচেয়ে ভালো জায়গা';
+ if(myHuts(G,p).length&&afford(G,p,COST.c))return'⭐ দালান বানাতে পারো! এতে ১ পয়েন্ট বাড়বে';
+ if(afford(G,p,COST.h)&&hutSpots(G,p).length)return'🏠 নতুন কুঁড়ে বানাতে পারো! সবুজ বোতাম ছুঁয়ো';
+ if(afford(G,p,COST.p)&&edgesFor(G,p).length)return'পথ বানাও, নতুন জায়গায় যেতে পথ লাগে';
+ if(G.res[p].some(n=>n>=3))return'একই জিনিস ৩টি জমেছে। বাজারে অন্য কিছুর সাথে বদলাও';
+ const nd=c=>c.map((n,i)=>Math.max(0,n-G.res[p][i])),sp=hutSpots(G,p).length;let g,gn;
+ if(sp){g=COST.h;gn='কুঁড়ে'}else if(edgesFor(G,p).length){g=COST.p;gn='পথ (নতুন জায়গায় যেতে)'}else if(myHuts(G,p).length){g=COST.c;gn='দালান'}
+ return g?`🎯 পরের লক্ষ্য: ${gn}। আরও লাগবে ${ems(nd(g),16)} পালা শেষ করো ➜`:'পালা শেষ করো ➜'}
+function render(){
+ if(!G)return;
+ const cp=cur(G),vw=gmode=='local'?cp:me;
+ $('scores').innerHTML=[0,1].map(i=>`<div class="pl${cp==i&&!G.over?' on':''}" style="--c:${PC[i]}"><div class="nm"><i></i><b>${G.names[i]}</b><span>⭐${bn(pts(G,i))}/${bn(WIN)}</span></div><div class="bar"><u style="width:${Math.min(100,pts(G,i)/WIN*100)}%"></u></div><small>${G.res[i].map((n,j)=>ico(j,13)+bn(i==vw?n-pend[j]:n)).join(' ')}</small></div>`).join('');
+ $('board').setAttribute('viewBox',G.vb);$('mn').textContent='🗺 '+MAPS[G.map].n;
+ $('bd').innerHTML=boardSVG(true);
+ const d=$('dice');d.hidden=!G.rolled;d.textContent=G.rolled?'🎲 '+bn(G.dice):'';
+ $('coach').innerHTML=coach();
+ const p=me,pl=gmode=='local'?cur(G):me;
+ $('hand').innerHTML=RS.map((r,i)=>`<div class="rc"><em>${ico(i,28)}</em><b>${bn(G.res[pl][i]-(pend[i]||0))}</b><small>${r.n}</small></div>`).join('');
+ const my=!busy&&!G.over&&isMine(cur(G))&&G.phase=='main',m=my&&G.rolled,pp=cur(G);
+ const ok={path:m&&afford(G,pp,COST.p)&&edgesFor(G,pp).length>0,hut:m&&afford(G,pp,COST.h)&&hutSpots(G,pp).length>0,city:m&&afford(G,pp,COST.c)&&myHuts(G,pp).length>0};
+ ['path','hut','city'].forEach(k=>{const b=$('b'+k);b.hidden=!ok[k];b.classList.toggle('go',!!ok[k]);b.classList.toggle('sel',mode==k)});
+ const canTrade=m&&G.res[pp].some(n=>n>=3);$('btrade').hidden=!canTrade;
+ $('nobuy').hidden=!(m&&!ok.path&&!ok.hut&&!ok.city&&!canTrade);
+ const pr=$('prim'),act=my;
+ pr.textContent=G.over?'—':act?(G.rolled?'পালা শেষ ➜':'🎲 পাশা ফেলো'):(G.phase=='setup'&&isMine(cur(G))&&!busy?'জায়গা বাছো 👆':'অপেক্ষা…');
+ pr.classList.toggle('dim',!act);
+ pr.classList.toggle('go',act&&(!G.rolled||(!ok.path&&!ok.hut&&!ok.city)));
+ pr.classList.toggle('pulse',act&&!G.rolled)}
+/* ---------- input ---------- */
+$('board').onclick=e=>{const t=e.target.closest&&e.target.closest('[data-a]');if(t)hAct(t.dataset.a)};
+async function hAct(a){if(busy||G.over||!isMine(cur(G)))return;const before=cur(G);if(!act(G,a))return;mode='';beep(a[0]=='e'?400:560,.1);render();await after(before,a)}
+async function after(before,a){
+ saveCur();
+ if(G.over)return finish();
+ if(gmode=='fb'&&cur(G)!=me&&sentLen!=G.log.length)await sendTurn();
+ else if(gmode=='local'&&cur(G)!=before){busy=true;render();modal(`<h2>ফোন ${G.names[cur(G)]}-কে দাও</h2><p class="sub">${G.names[cur(G)]} তৈরি হলে নিচের বোতাম ছুঁক</p><button class="big" id="rd">আমি তৈরি</button>`);await new Promise(r=>$('rd').onclick=r);hide();busy=false}
+ drive()}
+function bld(k){
+ if(busy||G.over||!isMine(cur(G))||G.phase!='main')return;
+ if(!G.rolled){toast('আগে পাশা ফেলো 🎲');return}
+ const p=cur(G),c=COST[k[0]=='p'?'p':k=='hut'?'h':'c'];
+ if(!afford(G,p,c)){const miss=c.map((n,i)=>Math.max(0,n-G.res[p][i]));toast('সম্পদ কম। আরও লাগবে: '+ems(miss));return}
+ const n={path:edgesFor(G,p),hut:hutSpots(G,p),city:myHuts(G,p)}[k].length;
+ if(!n){toast(k=='city'?'আগে একটি কুঁড়ে বানাও':k=='hut'?'কুঁড়ে বসানোর জায়গা নেই। আগে পথ বাড়াও':'পথ বসানোর জায়গা নেই');return}
+ mode=mode==k?'':k;render()}
+async function onPrimary(){
+ if(busy||G.over||!isMine(cur(G))||G.phase!='main')return;
+ if(!G.rolled){busy=true;render();await rollAnim();busy=false;render()}else{mode='';hAct('e00')}}
+function openTrade(){
+ if(busy||G.over||!isMine(cur(G))||G.phase!='main')return;if(!G.rolled){toast('আগে পাশা ফেলো 🎲');return}
+ let g=-1;const p=cur(G);
+ const draw=()=>{modal(`<h2>বাজার</h2><p class="sub">একই জিনিস ৩টি দিলে অন্য যেকোনো ১টি পাবে</p><p class="lb">${g<0?'কী দেবে?':'কী নেবে?'}</p><div class="row">${RS.map((r,i)=>g<0?`<button class="chip${G.res[p][i]>=3?'':' off'}" data-i="${i}">${ico(i,28)}<small>${r.n} ${bn(G.res[p][i])}</small></button>`:`<button class="chip${i==g?' off':''}" data-i="${i}">${ico(i,28)}<small>${r.n}</small></button>`).join('')}</div><button class="ghost" id="tcl">বন্ধ করো</button>`);
+  $('card').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;if(g<0){if(G.res[p][i]>=3){g=i;draw()}}else if(i!=g){hide();hAct('t'+g+i)}});$('tcl').onclick=hide};
+ draw()}
+/* ---------- flow ---------- */
+async function rollAnim(){
+ if(G.rolled)return;const d=$('dice');d.hidden=false;
+ for(let i=0;i<9;i++){d.textContent='🎲 '+bn(1+Math.floor(Math.random()*SIDES));beep(260+i*30,.04);await sleep(70)}
+ doRoll(G);const pl0=gmode=='local'?cur(G):me;pend=[0,0,0];G.hits.filter(h=>h.p==pl0).forEach(h=>pend[h.r]+=h.n);render();beep(660,.15);
+ const nm=[0,1].map(p=>{const a=[0,0,0];G.hits.filter(h=>h.p==p).forEach(h=>a[h.r]+=h.n);return a.some(n=>n)?`${G.names[p]}: ${a.map((n,i)=>n?ico(i,16)+'×'+bn(n):'').filter(Boolean).join(' ')}`:''}).filter(Boolean);
+ G.hits.forEach(h=>pop(h.k,'+'+bn(h.n),PC[h.p],h.r));
+ toast(nm.length?`পাশায় ${bn(G.dice)} উঠেছে! `+nm.join(' · '):`পাশায় ${bn(G.dice)} উঠেছে। এবার কেউ কিছু পেল না`,2600);await flights(pl0)}
+function flyTo(h,vw){return new Promise(res=>{
+ const tg=h.p==vw?document.querySelectorAll('#hand .rc')[h.r]:document.querySelectorAll('#scores .pl')[h.p];if(!tg){res();return}
+ const v=G.V[h.k],pt=$('board').createSVGPoint();pt.x=v.x;pt.y=v.y;const q=pt.matrixTransform($('board').getScreenCTM()),tr=tg.getBoundingClientRect(),dx=tr.left+tr.width/2-q.x,dy=tr.top+tr.height/2-q.y;
+ const el=document.createElement('div');el.className='fly';el.innerHTML=ico(h.r,30)+(h.n>1?'<b>×'+bn(h.n)+'</b>':'');el.style.left=q.x+'px';el.style.top=q.y+'px';$('fly').appendChild(el);
+ el.getBoundingClientRect();el.style.transition='transform .9s cubic-bezier(.45,-.25,.35,1),opacity .2s .75s';el.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) scale(.75)`;el.style.opacity='0.95';
+ setTimeout(()=>{el.style.opacity='0'},760);setTimeout(()=>{el.remove();res()},960)})}
+function bump(r,n){render();const c=document.querySelectorAll('#hand .rc')[r];if(!c)return;c.classList.add('bump');const t=document.createElement('i');t.className='plus';t.textContent='+'+bn(n);c.appendChild(t);beep(700,.06);setTimeout(()=>t.remove(),900)}
+async function flights(vw){
+ if(!SPEED){pend=[0,0,0];render();return}
+ await Promise.all(G.hits.map((h,i)=>sleep(i*170).then(()=>flyTo(h,vw)).then(()=>{if(h.p==vw){pend[h.r]=Math.max(0,pend[h.r]-h.n);bump(h.r,h.n)}else render()})));
+ pend=[0,0,0];render()}
+async function drive(){
+ if(driving||!G)return;driving=true;
+ try{while(!G.over){const p=cur(G);if(!isBot(p))break;busy=true;render();
+  if(G.phase=='setup'){await sleep(700);act(G,botSetup(G,p,level));beep(520,.1);render();await sleep(500)}
+  else{await sleep(700);await rollAnim();await sleep(900);
+   for(let n=0;n<8&&!G.over;n++){const a=botMove(G,p,level);if(!a)break;act(G,a);beep(520,.1);render();await sleep(1000)}
+   if(!G.over)act(G,'e00')}
+  saveCur()}}finally{driving=false;busy=false}
+ render();if(G.over)finish();
+ else if(!isMine(cur(G))&&gmode=='fb')waitScreen(false)}
+const lastSummary=()=>{const o=1-me,a=[];for(let i=G.hist.length-1;i>=0&&G.hist[i].p==o;i--)a.push(G.hist[i].t);
+ const c=t=>a.filter(x=>x==t).length,s=[];if(c('h'))s.push(bn(c('h'))+'টি কুঁড়ে');if(c('p'))s.push(bn(c('p'))+'টি পথ');if(c('u'))s.push(bn(c('u'))+'টি দালান');if(c('t'))s.push('বাজারে বদল');
+ return s.length?`${G.names[o]} বানিয়েছে: ${s.join(', ')}`:`${G.names[o]} এই পালায় কিছু বানায়নি`};
+function start(m,lv){
+ gmode=m;level=lv==null?level:lv;const seed=(1+Math.floor(Math.random()*200000))*MAPS.length+(mapSel<0?Math.floor(Math.random()*MAPS.length):mapSel);
+ const bots=['রহিম','মালা'];
+ if(m=='bot'){me=0;G=mk(seed,[myName||'তুমি',bots[level]],[myId,'bot'])}
+ else if(m=='local')G=mk(seed,['খেলোয়াড় ১','খেলোয়াড় ২'],['',''])
+ else{me=0;G=mk(seed,[myName||'খেলোয়াড় ১','বন্ধু'],[myId,''])}
+ sentLen=-1;mode='';busy=false;hide();$('fx').innerHTML='';render();saveCur();
+ if(!D.seen){D.seen=1;store.save();showRules(true)}else{toast(gmode=='bot'?`${G.names[1]}-র সাথে খেলা! আগে ${bn(WIN)} পয়েন্ট পেলে জয়`:'আগে '+bn(WIN)+' পয়েন্ট পেলে জয়')}
+ drive()}
+function resume(d){gmode=d.m;level=d.lv||1;const g=replay(d.s,d.l,d.n,d.i);if(!g){start('bot');return}G=g;me=gmode=='fb'?Math.max(0,G.ids.indexOf(myId)):0;sentLen=G.log.length;mode='';busy=false;hide();render();drive()}
+function introImg(){const c=document.createElement('canvas');c.width=1200;c.height=628;const x=c.getContext('2d');x.fillStyle='#0b2a38';x.fillRect(0,0,1200,628);x.textAlign='center';x.fillStyle='#ffc94d';x.font='bold 130px sans-serif';x.fillText('সোনার গাঁ',600,300);x.fillStyle='#fff';x.font='52px sans-serif';x.fillText('এসো, আমার সাথে খেলো!',600,410);return c.toDataURL('image/jpeg',.7)}
+async function startFriend(){
+ if(!fbOK){start('fb');return}
+ try{if(ctxType=='SOLO'||ctxType=='POST'){
+  try{await FBInstant.context.chooseAsync()}
+  catch(e){if(e&&e.code=='USER_INPUT')return;
+   await FBInstant.shareAsync({intent:'INVITE',image:introImg(),text:'সোনার গাঁ খেলবে? এসো!',data:{},shareDestination:['MESSENGER'],switchContext:true})}
+  ctxId=FBInstant.context.getID();ctxType=FBInstant.context.getType()}}
+ catch(e){if(e&&e.code=='USER_INPUT')return;toast('বন্ধু বাছাই করা গেল না, আবার চেষ্টা করো');return}
+ start('fb')}
+function loadFb(d){
+ const seed=parseInt(d.s,36)||1,G2=replay(seed,String(d.l||'').slice(0,900),[0,1].map(k=>clean((d.n||[])[k])||'খেলোয়াড় '+bn(k+1)),[0,1].map(k=>cid((d.i||[])[k])));if(!G2){showHome();return}
+ gmode='fb';G=G2;let idx=G.ids.indexOf(myId);
+ if(idx<0){if(!G.ids[1]){G.ids[1]=myId;G.names[1]=myName||'খেলোয়াড় ২';idx=1}else{modal(`<h2>এই খেলায় দুজন</h2><p class="sub">${G.names[0]} আর ${G.names[1]} খেলছে। তুমি নিজের খেলা শুরু করতে পারো।</p><button class="big" id="nw">নতুন খেলা</button>`);$('nw').onclick=()=>start('fb');return}}
+ me=idx;sentLen=G.log.length;mode='';hide();busy=false;render();
+ if(G.over){finish(true);return}
+ if(isMine(cur(G))){if(G.hist.length&&G.hist[G.hist.length-1].p!=me)toast(lastSummary(),3500);saveCur()}else waitScreen(false)}
+function waitScreen(sent){
+ if(!fbOK){linkModal();return}
+ modal(`<h2>${sent?'পাঠানো হয়েছে ✅':'⏳ '+G.names[cur(G)]+'-র পালা'}</h2><p class="sub">${sent?G.names[cur(G)]+'-র কাছে চ্যাটে বোর্ড চলে গেছে। ও ছুঁলেই খেলা খুলবে।':'ও খেললে চ্যাটে খবর আসবে। তুমি এখন চ্যাটে ফিরে যেতে পারো।'}</p><button class="big" id="bk">💬 চ্যাটে ফিরে যাও</button><button class="ghost" id="wv">বোর্ড দেখো</button>`);
+ $('bk').onclick=()=>{try{FBInstant.quit()}catch(e){hide()}};$('wv').onclick=hide}
+function boardImg(){return new Promise(res=>{
+ const fb=()=>{const c=document.createElement('canvas');c.width=1200;c.height=628;const x=c.getContext('2d');x.fillStyle='#0b2a38';x.fillRect(0,0,1200,628);x.textAlign='center';x.fillStyle='#ffc94d';x.font='bold 120px sans-serif';x.fillText('সোনার গাঁ',600,300);x.fillStyle='#fff';x.font='48px sans-serif';x.fillText('পালা তোমার!',600,400);return c.toDataURL('image/jpeg',.7)};
+ const to=setTimeout(()=>res(fb()),2500);
+ try{const nm=G.names,t=(y,s,sz,col)=>`<text x="900" y="${y}" font-size="${sz}" font-weight="700" fill="${col}" text-anchor="middle" font-family="sans-serif">${s}</text>`;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="628" viewBox="0 0 1200 628">${$('dfs').outerHTML}<rect width="1200" height="628" fill="#0b2a38"/><svg x="30" y="20" width="640" height="590" viewBox="${G.vb}">${boardSVG(false)}</svg>${t(150,'সোনার গাঁ',64,'#ffc94d')}${t(260,nm[0]+' ⭐'+bn(pts(G,0)),44,PC[0])}${t(320,nm[1]+' ⭐'+bn(pts(G,1)),44,PC[1])}${t(450,G.over?nm[G.win]+' জিতেছে! 🎉':nm[cur(G)]+'-র পালা 👉',46,'#ffffff')}</svg>`;
+  const img=new Image();img.onload=()=>{try{const c=document.createElement('canvas');c.width=1200;c.height=628;c.getContext('2d').drawImage(img,0,0);clearTimeout(to);res(c.toDataURL('image/jpeg',.7))}catch(e){}};
+  img.onerror=()=>{};img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)}catch(e){}})}
+const linkURL=()=>location.origin+location.pathname+'#'+new URLSearchParams({s:G.seed.toString(36),l:G.log,n:G.names.join('|'),i:G.ids.join(',')}).toString();
+function hashEntry(){try{const q=new URLSearchParams(location.hash.slice(1));if(!q.get('s'))return null;const e={s:q.get('s'),l:q.get('l')||'',n:(q.get('n')||'').split('|'),i:(q.get('i')||'').split(',')};history.replaceState(null,'',location.pathname);return e}catch(x){return null}}
+function linkModal(){const o=1-me,u=linkURL();
+ modal(`<h2>${G.over?'খেলা শেষ 🎉':'তোমার পালা শেষ ✅'}</h2><p class="sub">নিচের লিংক ${G.names[o]}-কে মেসেঞ্জার বা হোয়াটসঅ্যাপে পাঠাও। ও লিংক খুলে নিজের পালা খেলে তোমাকে নতুন লিংক পাঠাবে।</p><button class="big" id="sh">📤 লিংক পাঠাও</button><button class="ghost" id="cp">📋 লিংক কপি করো</button><input id="lku" readonly value="${u}"><button class="ghost" id="wv">বোর্ড দেখো</button>`);
+ $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(u);$('cp').textContent='✅ কপি হয়েছে'}catch(e){$('lku').select();$('cp').textContent='লিংক বাছা হয়েছে, কপি করো'}};
+ $('sh').onclick=async()=>{try{if(navigator.share){await navigator.share({title:'সোনার গাঁ',text:'তোমার পালা! সোনার গাঁ খেলো',url:u});return}}catch(e){if(e&&e.name=='AbortError')return}$('cp').click()};
+ $('wv').onclick=hide}
+async function sendTurn(){
+ if(!fbOK){sentLen=G.log.length;linkModal();return}
+ busy=true;render();sentLen=G.log.length;
+ const d={s:G.seed.toString(36),l:G.log,n:G.names,i:G.ids},o=1-me,txt=G.over?`${G.names[G.win]} জিতেছে! রিম্যাচ চাও?`:`${G.names[me]} পালা শেষ করেছে। এবার ${G.names[o]}-র পালা!`;
+ try{await FBInstant.updateAsync({action:'CUSTOM',template:G.over?'game_over':'your_turn',cta:G.over?'রিম্যাচ':'খেলো',image:await boardImg(),text:{default:txt},data:d,strategy:G.over?'IMMEDIATE':'LAST',notification:'NO_PUSH'});waitScreen(true)}
+ catch(e){toast('পাঠানো যায়নি। আবার চেষ্টা করছি…');sentLen=-1;try{await sleep(800);await FBInstant.updateAsync({action:'CUSTOM',template:'your_turn',cta:'খেলো',image:await boardImg(),text:{default:txt},data:d,strategy:'LAST',notification:'NO_PUSH'});sentLen=G.log.length;waitScreen(true)}catch(e2){toast('নেট ঠিক আছে কিনা দেখে আবার ছুঁয়ে দাও',4000);modal(`<h2>পাঠানো যায়নি</h2><p class="sub">তোমার পালা সেভ আছে।</p><button class="big" id="rt">আবার পাঠাও</button>`);$('rt').onclick=()=>{hide();sendTurn()}}}
+ busy=false}
+async function finish(noCount){
+ busy=true;render();
+ const won=gmode=='local'?true:G.win==me,key=G.seed+'';
+ if(gmode!='local'&&!D.done.includes(key)){D.done.push(key);D.done=D.done.slice(-30);D.g++;if(won){D.w++;D.s++;D.b=Math.max(D.b,D.s)}else D.s=0}
+ D.cur=null;store.save();
+ if(gmode=='fb'&&!noCount&&sentLen!=G.log.length){await sendTurn();hide()}
+ if(won)confetti();beep(won?880:220,.4);
+ const nt=nextT(D.w);
+ setTimeout(()=>modal(`<h1>${won?'🎉 জয়!':'আবার হবে!'}</h1><p class="sub">${gmode=='local'?G.names[G.win]+' জিতেছে!':won?'তুমি সোনার গাঁ গড়ে ফেললে!':G.names[G.win]+' জিতে গেল। আরেকবার?'}</p><p><b>⭐ ${bn(pts(G,0))} : ${bn(pts(G,1))}</b></p>${gmode=='local'?'':`<p class="lb">পদবী: <b>${titleOf(D.w)}</b> · টানা জয় 🔥${bn(D.s)}${nt?`<br>পরের পদ "${nt[1]}" পেতে আরও ${bn(nt[0]-D.w)}টি জয়`:''}</p>`}<button class="big" id="ag">আবার খেলো</button>${gmode=='fb'?'<button class="ghost" id="hm">মেনু</button>':'<button class="ghost" id="hm">মেনু</button>'}`),noCount?200:900);
+ setTimeout(()=>{const a=$('ag');if(!a)return;a.onclick=()=>{hide();if(gmode=='fb')start('fb');else start(gmode)};$('hm').onclick=showHome},noCount?300:1000)}
+function showRules(thenStart){
+ const hx=(cx,cy,r)=>[0,1,2,3,4,5].map(k=>{const a=Math.PI/180*(60*k-30);return(cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1)}).join(' ');
+ const VX=109.5,VY=87,tiles=[[80,70,0,'৩'],[139,70,1,'২'],[109.5,121,2,'১']];
+ const base=tiles.map(([x,y,r,n])=>`<polygon points="${hx(x,y,34)}" fill="url(#g${r})" stroke="#08141d" stroke-width="2.5" stroke-linejoin="round"/><use href="#r${r}" x="${x-12}" y="${y-26}" width="24" height="24"/><circle cx="${x}" cy="${y+11}" r="9.5" fill="url(#tk)" stroke="#7a5a14" stroke-width="1.4"/><text x="${x}" y="${y+11.5}" class="tt">${n}</text>`).join('');
+ const hut=()=>piece({x:VX,y:VY,o:0,t:1}),city=()=>piece({x:VX,y:VY,o:0,t:2});
+ const bank=(a,b,k)=>[0,1,2].map(i=>{const x=16+100*i;return `<rect x="${x}" y="176" width="88" height="50" rx="12" fill="#133e52" stroke="#2a6a86" stroke-width="1.5"/><use href="#r${i}" x="${x+10}" y="189" width="24" height="24"/><text x="${x+62}" y="202" class="tb${b&&b[i]!=null?' t-a'+k:''}">${a[i]}</text>${b&&b[i]!=null?`<text x="${x+62}" y="202" class="tb t-b${k}">${b[i]}</text>`:''}`}).join('');
+ const die=an=>`<g transform="translate(268,58)"><g class="${an?'t-die':''}"><rect x="-24" y="-24" width="48" height="48" rx="10" fill="#fff8e6" stroke="#08141d" stroke-width="2.5"/>${an?'<text class="td d1">১</text><text class="td d2">৪</text><text class="td d3">২</text><text class="td d4">৩</text>':'<text class="td">৩</text>'}</g></g>`;
+ const star=(a,b)=>b?`<text x="268" y="124" class="ts t-a1">⭐${a}</text><text x="268" y="124" class="ts t-b1">⭐${b}</text>`:`<text x="268" y="124" class="ts">⭐${a}</text>`;
+ const fly=(i,fx,fy,tx,ty,c,dl)=>`<use class="t-fly${c||''}" href="#r${i}" x="${fx}" y="${fy}" width="24" height="24" style="--dx:${tx-fx}px;--dy:${ty-fy}px;animation-delay:${dl||0}s"/>`;
+ const glow=`<g class="t-glow"><polygon points="${hx(80,70,34)}" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/></g>`;
+ const ox=`style="transform-origin:${VX}px ${VY}px"`;
+ const scenes=[
+  `${base}${hut()}${glow}${die(1)}${star('২')}${bank(['০','০','০'])}`,
+  `${base}${hut()}<g class="t-glow2"><polygon points="${hx(80,70,34)}" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/></g>${die(0)}${star('২')}${bank(['০','০','০'],['১',null,null],2)}${fly(0,68,44,26,189,'',0)}<text class="t-plus" x="60" y="170">+১</text>`,
+  `${base}${star('২','৩')}${bank(['১','১','১'],['০','০','০'],1)}<g class="t-pop" ${ox}>${hut()}</g>${fly(0,26,189,97.5,75,'b',0)}${fly(1,126,189,97.5,75,'b',.25)}${fly(2,226,189,97.5,75,'b',.5)}`,
+  `${base}<g class="t-hutout">${hut()}</g><g class="t-pop" ${ox}>${city()}</g>${star('৩','৪')}${bank(['২','২','০'],['০','০',null],1)}${fly(0,26,189,97.5,75,'b',0)}${fly(0,26,189,97.5,75,'b',.3)}${fly(1,126,189,97.5,75,'b',.15)}${fly(1,126,189,97.5,75,'b',.45)}`,
+  `<rect x="30" y="100" width="260" height="30" rx="15" fill="#0b2a38" stroke="#2a6a86" stroke-width="2"/><rect class="t-bar" x="30" y="100" width="260" height="30" rx="15" fill="#ffc94d"/>${['০','২','৪','৬','৮'].map((n,i)=>`<text x="160" y="190" class="tb tc${i+1}">${n} পয়েন্ট</text>`).join('')}<text x="160" y="72" class="t-trophy">🏆</text>${['🎉','⭐','🌾','🐟','✨','🎋'].map((e,i)=>`<text x="${40+i*48}" y="20" class="t-cf" style="animation-delay:${i*.18}s">${e}</text>`).join('')}`];
+ const caps=['🎲 পাশা ফেলো। যে জমির সংখ্যা মিলবে, সে সম্পদ দেবে','সম্পদ উড়ে এসে জমা হয় তোমার ব্যাংকে','সম্পদ দিয়ে কুঁড়ে বানাও: ১ পয়েন্ট','কুঁড়ে বদলে দালান: আরও ১ পয়েন্ট','আগে '+bn(WIN)+' পয়েন্ট পেলে জয়! 🏆'];
+ let i=0,tm=0;const id=Date.now();
+ const done=()=>{clearTimeout(tm);delete card.dataset.tut;hide();if(!thenStart&&!G)showHome()};
+ const draw=()=>{clearTimeout(tm);modal(`<div class="stage"><svg viewBox="0 0 320 240" width="100%">${scenes[i]}</svg></div><p class="cap">${caps[i]}</p><div class="dots">${scenes.map((_,j)=>`<i${j==i?' class="on"':''}></i>`).join('')}</div><div class="row"><button class="ghost" id="pv" style="width:56px;margin:8px 0 0"${i?'':' disabled'}>◀</button><button class="big" id="nx" style="margin:8px 0 0">${i<scenes.length-1?'পরের ➜':'খেলা শুরু ▶'}</button></div><button class="ghost" id="sk">বাদ দাও</button>`);
+  card.dataset.tut=id;$('pv').onclick=()=>{if(i){i--;draw()}};$('nx').onclick=()=>{if(i<scenes.length-1){i++;draw()}else done()};$('sk').onclick=done;
+  tm=setTimeout(()=>{if(card.dataset.tut==id&&!$('modal').hidden&&i<scenes.length-1){i++;draw()}},6500)};
+ draw()}
+function showHome(){
+ const nt=nextT(D.w),cr=D.cur&&(D.cur.m!='fb'||D.cur.c==ctxId)?D.cur:null;
+ modal(`<h1>সোনার গাঁ</h1><p class="sub">গ্রাম গড়ো, ধান-মাছ-বাঁশ জমাও</p><input id="nmi" maxlength="10" placeholder="তোমার নাম লেখো" value="${(D.name||myName||'').replace(/"/g,'')}"><p class="lb">${titleOf(D.w)} · ${bn(D.w)}টি জয} · টানা 🔥${bn(D.s)}${nt?`<br>পরের পদ "${nt[1]}" থেকে ${bn(nt[0]-D.w)}টি জয় দূরে`:''}</p>${cr?'<button class="big alt" id="rs">▶ আগের খেলা চালিয়ে যাও</button>':''}<p class="lb" style="margin:10px 0 4px">মানচিত্র বাছো</p><div class="maps">${MAPS.map((m,i)=>`<button class="mp${mapSel==i?' sel':''}" data-m="${i}">${miniMap(i)}<b>${m.n}</b></button>`).join('')}<button class="mp${mapSel<0?' sel':''}" data-m="-1"><span class="rnd">🎲</span><b>যেকোনো</b></button></div>${NOFR?'':`<button class="big" id="fr">${fbOK?'💬 মেসেঞ্জারে বন্ধুর সাথে খেলো':'🔗 লিংক পাঠিয়ে বন্ধুর সাথে খেলো'}</button>`}<button class="big alt" id="bt">🤖 কম্পিউটারের সাথে খেলো</button><div class="row" id="lv"><button class="chip${level==0?' sel':''}" data-l="0">😊 সহজ</button><button class="chip${level==1?' sel':''}" data-l="1">😎 মাঝারি</button></div><button class="ghost" id="lc">👥 একই ফোনে দুজন</button><button class="ghost" id="rl">▶ কীভাবে খেলবে (ছোট ভিডিও)</button>`.replace('জয}','জয়'));
+ if($('rs'))$('rs').onclick=()=>resume(D.cur);if($('fr'))$('fr').onclick=startFriend;
+ $('nmi').oninput=()=>{myName=clean($('nmi').value);D.name=myName;store.save()};$('bt').onclick=()=>start('bot');$('lc').onclick=()=>start('local');$('rl').onclick=()=>showRules(false);
+ $('card').querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{mapSel=+b.dataset.m;D.map=mapSel;store.save();showHome()});
+ $('card').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{level=+b.dataset.l;D.lvl=level;store.save();showHome()})}
+function menu(){modal(`<h2>মেনু</h2><button class="ghost" id="m1">▶ কীভাবে খেলবে</button><button class="ghost" id="m2">${snd?'🔊 শব্দ চালু':'🔇 শব্দ বন্ধ'}</button><button class="ghost" id="m3">🏠 মূল মেনু</button>${fbOK&&gmode=='fb'?'<button class="ghost" id="m4">💬 চ্যাটে ফিরে যাও</button>':''}<button class="big" id="m0">খেলায় ফিরো</button>`);
+ $('m0').onclick=hide;$('m1').onclick=()=>showRules(true);$('m2').onclick=()=>{snd=!snd;menu()};$('m3').onclick=showHome;if($('m4'))$('m4').onclick=()=>{try{FBInstant.quit()}catch(e){}}}
+/* ---------- boot ---------- */
+$('bpath').onclick=()=>bld('path');$('bhut').onclick=()=>bld('hut');$('bcity').onclick=()=>bld('city');
+$('btrade').onclick=openTrade;$('prim').onclick=onPrimary;$('bm').onclick=menu;
+(async()=>{
+ const entry=(await fbInit())||hashEntry();D=Object.assign(D,await store.load());
+ if(D.name)myName=clean(D.name);if(typeof D.map=='number')mapSel=D.map;if(D.lv2!==1){D.lv2=1;D.lvl=0;store.save()}level=typeof D.lvl=='number'?D.lvl:0;
+ [['bpath',COST.p],['bhut',COST.h],['bcity',COST.c]].forEach(([id,c])=>$(id).querySelector('small').innerHTML=ems(c,15));
+ if(!fbOK){if(!D.uid){D.uid=Math.random().toString(36).slice(2,10);store.save()}myId=D.uid}
+ if(entry&&entry.s){loadFb(entry)}else showHome()})();
+
+</script>
+</body>
+</html>
